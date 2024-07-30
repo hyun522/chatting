@@ -3,18 +3,26 @@
 @tailwind utilities;
 
 @layer base {
-  /* body {
-    font-family: sans-serif;
-  } */
   @font-face {
-    font-family: 'Roboto';
+    font-family: 'KimjungchulMyungjo-Bold';
+    src: url('/public/fonts/KimjungchulGothic-Bold.ttf');
+    font-weight: 700;
+    font-size: 1.6rem;
     font-style: normal;
+  }
+  @font-face {
+    font-family: 'KimjungchulMyungjo-Regular';
+    src: url('/public/fonts/KimjungchulGothic-Regular.ttf');
     font-weight: 400;
-    font-display: swap;
-    src: url(/fonts/Roboto.woff2) format('woff2');
+    font-size: 1.6rem;
+    font-style: normal;
   }
   :root {
     font-size: 62.5%;
+    font-family: 'KimjungchulMyungjo-Regular';
+  }
+  body {
+    font-size: 1.6rem;
   }
 }
 
