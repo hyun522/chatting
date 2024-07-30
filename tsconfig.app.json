@@ -21,7 +21,17 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    //경로별칭 설정
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["./*"],
+      "@components/*": ["components/*"],
+      "@page/*": ["page/*"],
+      "@api/*": ["api/*"],
+      "@assets/*": ["assets/*"]
+    }
   },
   "include": ["src", ".eslintrc.cjs"]
 }
