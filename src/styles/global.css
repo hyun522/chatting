@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* body {
+    font-family: sans-serif;
+  } */
+  @font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(/fonts/Roboto.woff2) format('woff2');
+  }
+  :root {
+    font-size: 62.5%;
+  }
+}
+
+@layer components {
+  .flexCenter {
+    @apply flex items-center justify-center;
+  }
+}
