@@ -12,6 +12,7 @@ export default {
     fontSize: {
       16: ['1.6rem'],
       24: ['2.4rem'],
+      32: ['3.2rem'],
     },
     extend: {
       colors: {
@@ -32,6 +33,21 @@ export default {
         white: {
           DEFAULT: '#FFFFFF',
         },
+        orange: {
+          1: '#DA9147',
+          2: '#ECB05C',
+          3: '#FECF6F',
+        },
+        green: {
+          1: '#67654E',
+          2: '#A69A80',
+        },
+        beige: {
+          DEFAULT: '#E2C89F',
+        },
+      },
+      borderRadius: {
+        DEFAULT: '.8rem',
       },
     },
   },
