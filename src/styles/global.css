@@ -5,14 +5,14 @@
 @layer base {
   @font-face {
     font-family: 'KimjungchulMyungjo-Bold';
-    src: url('/public/fonts/KimjungchulGothic-Bold.ttf');
+    src: url('/fonts/KimjungchulGothic-Bold.ttf') format('truetype');
     font-weight: 700;
     font-size: 1.6rem;
     font-style: normal;
   }
   @font-face {
     font-family: 'KimjungchulMyungjo-Regular';
-    src: url('/public/fonts/KimjungchulGothic-Regular.ttf');
+    src: url('/fonts/KimjungchulGothic-Regular.ttf') format('truetype');
     font-weight: 400;
     font-size: 1.6rem;
     font-style: normal;
