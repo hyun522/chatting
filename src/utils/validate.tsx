@@ -16,3 +16,12 @@ export const getPasswordValidationMessage = (password: string) => {
   }
   return 'Valid';
 };
+
+export const getNicknameValidationMessage = (nickname: string) => {
+  const nicknameRegex = /^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,8}$/;
+
+  if (nickname === '' || !nicknameRegex.test(nickname)) {
+    return 'Invalid';
+  }
+  return 'Valid';
+};
