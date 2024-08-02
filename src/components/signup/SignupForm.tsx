@@ -201,12 +201,10 @@ function SignupForm() {
             </Link>
           </p>
         </div>
-        {isModalOpen && (
-          <Modal onClose={() => setIsModalOpen(false)}>
-            {errorModalMessage}
-          </Modal>
-        )}
       </section>
+      {isModalOpen && (
+        <Modal onClose={() => setIsModalOpen(false)}>{errorModalMessage}</Modal>
+      )}
     </>
   );
 }

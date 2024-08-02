@@ -4,7 +4,9 @@ import {
   getEmailValidationMessage,
   getPasswordValidationMessage,
 } from '@/utils/validate';
+import supabase from '@/api/supabaseApi';
 import AuthInput from '@/components/AuthInput';
+import Modal from '@/components/Modal';
 
 interface formDataType {
   email: string;
@@ -25,6 +27,8 @@ function SigninForm() {
   });
 
   const [isShow, setIsShow] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState<string>('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,7 +56,7 @@ function SigninForm() {
     setIsShow(!isShow);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (
@@ -62,6 +66,17 @@ function SigninForm() {
       !formData.password
     )
       return;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (error) {
+      setIsModalOpen(true);
+      setErrorModalMessage(error.message);
+      return;
+    }
 
     navigate('/');
   };
@@ -106,7 +121,7 @@ function SigninForm() {
             <button
               type='submit'
               disabled={!isFormValid}
-              className={`w-full rounded mt-[2rem] text-white bg-orange-2 p-[.5rem] ${isFormValid ? '' : 'bg-gray-D'}`}
+              className={`w-full rounded mt-[2rem] text-white p-[.5rem] ${isFormValid ? 'bg-orange-2' : 'bg-gray-D'}`}
             >
               로그인
             </button>
@@ -121,6 +136,9 @@ function SigninForm() {
           </p>
         </div>
       </section>
+      {isModalOpen && (
+        <Modal onClose={() => setIsModalOpen(false)}>{errorModalMessage}</Modal>
+      )}
     </>
   );
 }
