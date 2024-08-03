@@ -1,8 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom';
 import Signin from '@/pages/signin';
 import Signup from '@/pages/signup';
-import Layout from '@/components/layout';
 import Landing from '@/pages/landing';
+import Layout from '@/components/Layout';
 
 function routers() {
   const router = createBrowserRouter([

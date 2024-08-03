@@ -5,8 +5,8 @@ import {
   getPasswordValidationMessage,
 } from '@/utils/validate';
 import supabase from '@/api/supabaseApi';
-import AuthInput from '@/components/AuthInput';
-import Modal from '@/components/Modal';
+import AuthInput from '@/components/common/AuthInput';
+import Modal from '@/components/common/Modal';
 
 interface formDataType {
   email: string;
