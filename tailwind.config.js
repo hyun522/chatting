@@ -18,7 +18,7 @@ export default {
       colors: {
         // 예시) <p className="bg-gray-D">
         black: {
-          0: '#000000',
+          DEFAULT: '#000000',
           1: '#171717',
           3: '#333236',
           4: '#4B4B4B',
