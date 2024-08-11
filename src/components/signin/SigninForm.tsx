@@ -78,7 +78,7 @@ function SigninForm() {
       return;
     }
 
-    navigate('/');
+    navigate('/landing');
   };
 
   const isFormValid =

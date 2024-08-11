@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       .single();
 
     if (error) {
-      console.error('Error fetching profile nickname:', error);
+      return;
     } else {
       setProfileNickname(data?.nickname);
       setProfileImageUrl(data?.profile_image);

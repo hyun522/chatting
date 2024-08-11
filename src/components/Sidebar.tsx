@@ -13,7 +13,7 @@ function Sidebar({ onChatIconClick }: SidebarProps) {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate('/signin');
+    navigate('/');
   };
 
   return (
