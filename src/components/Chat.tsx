@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import supabase from '@/api/supabaseApi';
 import { FiX } from 'react-icons/fi';
-import { useAuth } from '@/context/UserProfileContext';
+import { useAuth } from '@/context/userProfileContext';
 
 const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
   selectedFriendId,

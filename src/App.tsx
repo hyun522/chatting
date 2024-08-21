@@ -1,5 +1,5 @@
 import '@/styles/global.css';
-import { AuthProvider } from '@/context/UserProfileContext';
+import { AuthProvider } from '@/context/userProfileContext';
 import Routers from '@/components/Routers';
 
 function App() {
