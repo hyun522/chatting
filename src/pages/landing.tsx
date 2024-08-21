@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useMutation } from 'react-query';
-import { useAuth } from '@/context/UserProfileContext';
+import { useAuth } from '@/context/userProfileContext';
 import FriendRecommendations from '@/components/landing/FriendRecommendations';
 import Chat from '@/components/Chat';
 
