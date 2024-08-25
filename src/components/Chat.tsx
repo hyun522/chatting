@@ -3,6 +3,14 @@ import supabase from '@/api/supabaseApi';
 import { FiX } from 'react-icons/fi';
 import { useAuth } from '@/context/userProfileContext';
 
+type MessageType = {
+  id: string;
+  chat_room_id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+};
+
 const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
   selectedFriendId,
   onClose,
@@ -16,14 +24,6 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
     nickname: string;
     profile_image: string;
   } | null>(null);
-
-  type MessageType = {
-    id: string;
-    chat_room_id: string;
-    sender_id: string;
-    content: string;
-    created_at: string;
-  };
 
   useEffect(() => {
     const fetchFriendProfile = async () => {
