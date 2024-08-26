@@ -103,7 +103,7 @@ function SignupForm() {
     }
 
     const userId = data.user?.id;
-    const { data: profiles, error: profileError } = await supabase
+    const { error: profileError } = await supabase
       .from('profiles')
       .insert([
         { id: userId, nickname: formData.nickname, profile_image: null },
