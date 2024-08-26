@@ -33,8 +33,12 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
         .eq('id', selectedFriendId)
         .single();
 
-      if (error) return;
-      else setFriendProfile(data);
+      if (error) {
+        console.error('Error fetching friend profile:', error);
+        return;
+      }
+
+      setFriendProfile(data);
     };
 
     fetchFriendProfile();
@@ -42,39 +46,48 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
 
   useEffect(() => {
     const createOrFetchChatRoom = async () => {
-      const userId = currentSession?.user.id;
+      const currentId = currentSession?.user.id;
+
+      if (!currentId) return;
+      // 항상 작은 ID를 user1_id로, 큰 ID를 user2_id로 설정
+      const [user1_id, user2_id] =
+        currentId < selectedFriendId
+          ? [currentId, selectedFriendId]
+          : [selectedFriendId, currentId];
 
       const { data: existingRooms, error } = await supabase
         .from('chat_room')
         .select('id')
-        .or(
-          `and(user1_id.eq.${userId},user2_id.eq.${selectedFriendId}),and(user1_id.eq.${selectedFriendId},user2_id.eq.${userId})`
-        );
+        .eq('user1_id', user1_id)
+        .eq('user2_id', user2_id);
 
       if (error) {
+        console.error('Error fetching chat room:', error);
         return;
       }
 
-      if (existingRooms.length > 0) {
+      if (existingRooms && existingRooms.length > 0) {
+        // 기존 채팅방이 있으면 그 채팅방의 ID를 사용
         setChatRoomId(existingRooms[0].id);
       } else {
-        // Create a new chat room
+        // 채팅방이 없으면 새로 생성
         const { data: newRoom, error: createError } = await supabase
           .from('chat_room')
-          .insert([{ user1_id: userId, user2_id: selectedFriendId }])
-          .select() // 여기서 새로 생성된 채팅방의 데이터를 반환
+          .insert([{ user1_id, user2_id }])
+          .select() // 새로 생성된 채팅방의 데이터를 반환
           .single();
 
         if (createError) {
+          console.error('Error creating chat room:', createError);
           return;
-        } else {
-          setChatRoomId(newRoom.id);
         }
+
+        setChatRoomId(newRoom.id);
       }
     };
 
     createOrFetchChatRoom();
-  }, [selectedFriendId]);
+  }, [selectedFriendId, currentSession]);
 
   useEffect(() => {
     if (!chatRoomId) return;
@@ -87,10 +100,11 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
         .order('created_at', { ascending: true });
 
       if (error) {
+        console.error('Error fetching messages:', error);
         return;
-      } else {
-        setMessages(data || []);
       }
+
+      setMessages(data || []);
     };
 
     fetchMessages(chatRoomId);
@@ -129,10 +143,11 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
       ]);
 
     if (error) {
+      console.error('Error sending message:', error);
       return;
-    } else {
-      setNewMessage('');
     }
+
+    setNewMessage('');
   };
 
   return (
