@@ -15,7 +15,7 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
   selectedFriendId,
   onClose,
 }) => {
-  const { isSession } = useAuth();
+  const { currentSession } = useAuth();
   const [chatRoomId, setChatRoomId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
@@ -42,9 +42,8 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
 
   useEffect(() => {
     const createOrFetchChatRoom = async () => {
-      const userId = isSession?.user.id;
+      const userId = currentSession?.user.id;
 
-      // Check if a chat room already exists
       const { data: existingRooms, error } = await supabase
         .from('chat_room')
         .select('id')
@@ -121,7 +120,7 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
   const sendMessage = async () => {
     if (newMessage.trim() === '' || !chatRoomId) return;
 
-    const userId = isSession?.user.id;
+    const userId = currentSession?.user.id;
 
     const { error } = await supabase
       .from('message')
@@ -165,7 +164,7 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
               messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`mb-2 p-2 rounded ${message.sender_id === isSession?.user.id ? 'bg-blue-100 self-end' : 'bg-gray-100 self-start'}`}
+                  className={`mb-2 p-2 rounded ${message.sender_id === currentSession?.user.id ? 'bg-blue-100 self-end' : 'bg-gray-100 self-start'}`}
                 >
                   <p>{message.content}</p>
                   <span className='text-xs text-gray-500'>

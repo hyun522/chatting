@@ -4,7 +4,7 @@ import supabase from '@/api/supabaseApi';
 import { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
-  isSession: Session | null;
+  currentSession: Session | null;
   profileNickname: string | null;
   profileImageUrl: string | null;
   signOut: () => Promise<void>;
@@ -20,7 +20,7 @@ const queryClient = new QueryClient();
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isSession, setIsSession] = useState<Session | null>(null);
+  const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [profileNickname, setProfileNickname] = useState<string | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsSession(session);
+      setCurrentSession(session);
       if (session) {
         fetchProfileNickname(session.user?.id);
       }
@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const uploadProfileImage = async (file: File): Promise<void> => {
-    if (!isSession) throw new Error('No session');
+    if (!currentSession) throw new Error('No session');
 
     if (profileImageUrl) {
       const filePathToDelete = profileImageUrl.split('/').pop();
@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     const fileExt = file.name.split('.').pop();
-    const fileName = `${isSession.user.id}-${Date.now()}.${fileExt}`;
+    const fileName = `${currentSession.user.id}-${Date.now()}.${fileExt}`;
     const filePath = `${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ profile_image: publicURL })
-      .eq('id', isSession.user.id);
+      .eq('id', currentSession.user.id);
 
     if (updateError) {
       throw updateError;
@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider
         value={{
-          isSession,
+          currentSession,
           profileNickname,
           profileImageUrl,
           uploadProfileImage,
