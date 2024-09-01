@@ -3,19 +3,30 @@ import { useMutation } from 'react-query';
 import { useAuth } from '@/context/userProfileContext';
 import FriendRecommendations from '@/components/landing/FriendRecommendations';
 import Chat from '@/components/Chat';
+import supabase from '@/api/supabaseApi';
 
 const Landing: React.FC = () => {
-  const { profileNickname, profileImageUrl, uploadProfileImage } = useAuth();
+  const {
+    currentSession,
+    profileNickname,
+    profileImageUrl,
+    uploadProfileImage,
+  } = useAuth();
   // 로그인한 유저가 선택한 상대방 ID
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [chatRoomId, setChatRoomId] = useState<string | null>(null);
 
   const mutation = useMutation(uploadProfileImage, {
     onSuccess: () => {
       alert('이미지가 업로드 되었습니다.');
     },
-    onError: (error: any) => {
-      alert('Error uploading profile image: ' + error.message);
+    onError: (error: unknown) => {
+      if (error instanceof Error) {
+        alert('Error uploading profile image: ' + error.message);
+      } else {
+        alert('Error uploading profile image: ' + String(error));
+      }
     },
   });
 
@@ -32,9 +43,52 @@ const Landing: React.FC = () => {
     }
   };
 
-  // 채팅을 시작하는 함수: FriendRecommendations 컴포넌트에서 호출됨
-  const handleChatStart = (friendId: string) => {
+  const handleChatStart = async (friendId: string) => {
     setSelectedFriendId(friendId);
+
+    const currentId = currentSession?.user.id;
+    if (!currentId) return;
+    // 채팅을 시작하는 함수: FriendRecommendations 컴포넌트에서 호출됨
+    const [user1_id, user2_id] =
+      currentId < friendId ? [currentId, friendId] : [friendId, currentId];
+    // 항상 작은 ID를 user1_id로, 큰 ID를 user2_id로 설정
+
+    try {
+      const { data: existingRooms, error } = await supabase
+        .from('chat_room')
+        .select('id')
+        .eq('user1_id', user1_id)
+        .eq('user2_id', user2_id);
+
+      console.log(existingRooms);
+
+      if (error) {
+        console.error('Error fetching chat room:', error);
+        return;
+      }
+
+      if (existingRooms && existingRooms.length > 0) {
+        // 기존 채팅방이 있으면 그 채팅방의 ID를 사용
+        setChatRoomId(existingRooms[0].id);
+      } else {
+        // 채팅방이 없으면 새로 생성
+        const { data: newRoom, error: createError } = await supabase
+          .from('chat_room')
+          .insert([{ user1_id, user2_id }])
+          .select() // 새로 생성된 채팅방의 데이터를 반환
+          .single();
+
+        if (createError) {
+          console.error('Error creating chat room:', createError);
+          return;
+        }
+
+        setChatRoomId(newRoom.id);
+      }
+    } catch (err) {
+      console.error('Error starting chat:', err);
+      return;
+    }
   };
 
   // 채팅을 종료하는 함수
@@ -45,7 +99,11 @@ const Landing: React.FC = () => {
   return (
     <div className='flex flex-col min-h-screen'>
       {selectedFriendId ? (
-        <Chat selectedFriendId={selectedFriendId} onClose={handleChatClose} />
+        <Chat
+          chatRoomId={chatRoomId}
+          selectedFriendId={selectedFriendId}
+          onClose={handleChatClose}
+        />
       ) : (
         <>
           <div className='relative h-[15rem] bg-gradient-to-br from-blue-500 via-indigo-500 via-pink-500 to-pink-500'>

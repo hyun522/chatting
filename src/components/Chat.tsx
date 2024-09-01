@@ -11,12 +11,13 @@ type MessageType = {
   created_at: string;
 };
 
-const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
-  selectedFriendId,
-  onClose,
-}) => {
+const Chat: React.FC<{
+  selectedFriendId: string;
+  onClose: () => void;
+  chatRoomId: string | null;
+}> = ({ selectedFriendId, onClose, chatRoomId }) => {
   const { currentSession } = useAuth();
-  const [chatRoomId, setChatRoomId] = useState<string | null>(null);
+  // const [chatRoomId, setChatRoomId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const [friendProfile, setFriendProfile] = useState<{
@@ -43,51 +44,6 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
 
     fetchFriendProfile();
   }, [selectedFriendId]);
-
-  useEffect(() => {
-    const createOrFetchChatRoom = async () => {
-      const currentId = currentSession?.user.id;
-
-      if (!currentId) return;
-      // 항상 작은 ID를 user1_id로, 큰 ID를 user2_id로 설정
-      const [user1_id, user2_id] =
-        currentId < selectedFriendId
-          ? [currentId, selectedFriendId]
-          : [selectedFriendId, currentId];
-
-      const { data: existingRooms, error } = await supabase
-        .from('chat_room')
-        .select('id')
-        .eq('user1_id', user1_id)
-        .eq('user2_id', user2_id);
-
-      if (error) {
-        console.error('Error fetching chat room:', error);
-        return;
-      }
-
-      if (existingRooms && existingRooms.length > 0) {
-        // 기존 채팅방이 있으면 그 채팅방의 ID를 사용
-        setChatRoomId(existingRooms[0].id);
-      } else {
-        // 채팅방이 없으면 새로 생성
-        const { data: newRoom, error: createError } = await supabase
-          .from('chat_room')
-          .insert([{ user1_id, user2_id }])
-          .select() // 새로 생성된 채팅방의 데이터를 반환
-          .single();
-
-        if (createError) {
-          console.error('Error creating chat room:', createError);
-          return;
-        }
-
-        setChatRoomId(newRoom.id);
-      }
-    };
-
-    createOrFetchChatRoom();
-  }, [selectedFriendId, currentSession]);
 
   useEffect(() => {
     if (!chatRoomId) return;
