@@ -3,12 +3,21 @@ import supabase from '@/api/supabaseApi';
 import { FiX } from 'react-icons/fi';
 import { useAuth } from '@/context/userProfileContext';
 
-const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
-  selectedFriendId,
-  onClose,
-}) => {
-  const { isSession } = useAuth();
-  const [chatRoomId, setChatRoomId] = useState<string | null>(null);
+type MessageType = {
+  id: string;
+  chat_room_id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+};
+
+const Chat: React.FC<{
+  selectedFriendId: string;
+  onClose: () => void;
+  chatRoomId: string | null;
+}> = ({ selectedFriendId, onClose, chatRoomId }) => {
+  const { currentSession } = useAuth();
+  // const [chatRoomId, setChatRoomId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const [friendProfile, setFriendProfile] = useState<{
@@ -16,14 +25,6 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
     nickname: string;
     profile_image: string;
   } | null>(null);
-
-  type MessageType = {
-    id: string;
-    chat_room_id: string;
-    sender_id: string;
-    content: string;
-    created_at: string;
-  };
 
   useEffect(() => {
     const fetchFriendProfile = async () => {
@@ -33,48 +34,15 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
         .eq('id', selectedFriendId)
         .single();
 
-      if (error) return;
-      else setFriendProfile(data);
-    };
-
-    fetchFriendProfile();
-  }, [selectedFriendId]);
-
-  useEffect(() => {
-    const createOrFetchChatRoom = async () => {
-      const userId = isSession?.user.id;
-
-      // Check if a chat room already exists
-      const { data: existingRooms, error } = await supabase
-        .from('chat_room')
-        .select('id')
-        .or(
-          `and(user1_id.eq.${userId},user2_id.eq.${selectedFriendId}),and(user1_id.eq.${selectedFriendId},user2_id.eq.${userId})`
-        );
-
       if (error) {
+        console.error('Error fetching friend profile:', error);
         return;
       }
 
-      if (existingRooms.length > 0) {
-        setChatRoomId(existingRooms[0].id);
-      } else {
-        // Create a new chat room
-        const { data: newRoom, error: createError } = await supabase
-          .from('chat_room')
-          .insert([{ user1_id: userId, user2_id: selectedFriendId }])
-          .select() // 여기서 새로 생성된 채팅방의 데이터를 반환
-          .single();
-
-        if (createError) {
-          return;
-        } else {
-          setChatRoomId(newRoom.id);
-        }
-      }
+      setFriendProfile(data);
     };
 
-    createOrFetchChatRoom();
+    fetchFriendProfile();
   }, [selectedFriendId]);
 
   useEffect(() => {
@@ -88,10 +56,11 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
         .order('created_at', { ascending: true });
 
       if (error) {
+        console.error('Error fetching messages:', error);
         return;
-      } else {
-        setMessages(data || []);
       }
+
+      setMessages(data || []);
     };
 
     fetchMessages(chatRoomId);
@@ -121,7 +90,7 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
   const sendMessage = async () => {
     if (newMessage.trim() === '' || !chatRoomId) return;
 
-    const userId = isSession?.user.id;
+    const userId = currentSession?.user.id;
 
     const { error } = await supabase
       .from('message')
@@ -130,10 +99,11 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
       ]);
 
     if (error) {
+      console.error('Error sending message:', error);
       return;
-    } else {
-      setNewMessage('');
     }
+
+    setNewMessage('');
   };
 
   return (
@@ -165,7 +135,7 @@ const Chat: React.FC<{ selectedFriendId: string; onClose: () => void }> = ({
               messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`mb-2 p-2 rounded ${message.sender_id === isSession?.user.id ? 'bg-blue-100 self-end' : 'bg-gray-100 self-start'}`}
+                  className={`mb-2 p-2 rounded ${message.sender_id === currentSession?.user.id ? 'bg-blue-100 self-end' : 'bg-gray-100 self-start'}`}
                 >
                   <p>{message.content}</p>
                   <span className='text-xs text-gray-500'>
